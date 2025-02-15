@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	core "github.com/diphantxm/ozon-api-client"
+	core "github.com/benice2me11/ozon-api-client"
 )
 
 type Brands struct {
