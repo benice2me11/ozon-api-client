@@ -559,7 +559,7 @@ type GetFBSShipmentsListParams struct {
 	Direction Order `json:"dir,omitempty"`
 
 	// Filter
-	Filter GetFBSShipmentsListFilter `json:"filter,omitempty"`
+	Filter GetFBSShipmentsListFilter `json:"filter"`
 
 	// Number of shipments in the response:
 	//   - maximum is 1000,
@@ -567,7 +567,7 @@ type GetFBSShipmentsListParams struct {
 	Limit int64 `json:"limit"`
 
 	// Number of elements that will be skipped in the response. For example, if offset=10, the response will start with the 11th element found
-	Offset int64 `json:"offset,omitempty"`
+	Offset int64 `json:"offset"`
 
 	// Additional fields that should be added to the response
 	With *GetFBSShipmentsListWith `json:"with,omitempty"`
@@ -615,12 +615,12 @@ type GetFBSShipmentsListFilter struct {
 	// Warehouse identifier
 	WarehouseId []int64 `json:"warehouse_id,omitempty"`
 
-	LastChangedStatusDate GetFBSShipmentsListFilterLastChangeDate `json:"last_changed_status_date,omitempty"`
+	LastChangedStatusDate *GetFBSShipmentsListFilterLastChangeDate `json:"last_changed_status_date,omitempty"`
 }
 
 type GetFBSShipmentsListFilterLastChangeDate struct {
-	From time.Time `json:"from"`
-	To   time.Time `json:"to"`
+	From time.Time `json:"from,omitempty"`
+	To   time.Time `json:"to,omitempty"`
 }
 
 type GetFBSShipmentsListWith struct {
