@@ -559,7 +559,7 @@ type GetFBSShipmentsListParams struct {
 	Direction Order `json:"dir,omitempty"`
 
 	// Filter
-	Filter GetFBSShipmentsListFilter `json:"filter"`
+	Filter GetFBSShipmentsListFilter `json:"filter,omitempty"`
 
 	// Number of shipments in the response:
 	//   - maximum is 1000,
@@ -582,7 +582,7 @@ type GetFBSShipmentsListFilter struct {
 	// Default value is all.
 	//
 	// The FBP scheme is available only for sellers from China
-	FBPFilter FBPFilter `json:"fbpFilter" default:"all"`
+	FBPFilter FBPFilter `json:"fbpFilter,omitempty" default:"all"`
 
 	// Order identifier
 	OrderId int64 `json:"order_id,omitempty"`
