@@ -562,7 +562,7 @@ type GetFBSShipmentsListParams struct {
 	Filter GetFBSShipmentsListFilter `json:"filter"`
 
 	// Number of shipments in the response:
-	//   - maximum is 50,
+	//   - maximum is 1000,
 	//   - minimum is 1.
 	Limit int64 `json:"limit"`
 
@@ -575,7 +575,7 @@ type GetFBSShipmentsListParams struct {
 
 type GetFBSShipmentsListFilter struct {
 	// Delivery method identifier
-	DeliveryMethodId []int64 `json:"delivery_method_id"`
+	DeliveryMethodId []int64 `json:"delivery_method_id,omitempty"`
 
 	// Filter for shipments delivered from partner warehouse (FBP)
 	//
@@ -585,15 +585,15 @@ type GetFBSShipmentsListFilter struct {
 	FBPFilter FBPFilter `json:"fbpFilter" default:"all"`
 
 	// Order identifier
-	OrderId int64 `json:"order_id"`
+	OrderId int64 `json:"order_id,omitempty"`
 
 	// Specify true to get only MOQ shipments.
 	//
 	// The default value is false, the response contains all shipments
-	IsQuantum bool `json:"is_quantum"`
+	IsQuantum bool `json:"is_quantum,omitempty"`
 
 	// Delivery service identifier
-	ProviderId []int64 `json:"provider_id"`
+	ProviderId []int64 `json:"provider_id,omitempty"`
 
 	// Start date of the period for which a list of shipments should be generated.
 	//
@@ -610,12 +610,12 @@ type GetFBSShipmentsListFilter struct {
 	To time.Time `json:"to"`
 
 	// Shipment status
-	Status string `json:"status"`
+	Status string `json:"status,omitempty"`
 
 	// Warehouse identifier
-	WarehouseId []int64 `json:"warehouse_id"`
+	WarehouseId []int64 `json:"warehouse_id,omitempty"`
 
-	LastChangedStatusDate GetFBSShipmentsListFilterLastChangeDate `json:"last_changed_status_date"`
+	LastChangedStatusDate GetFBSShipmentsListFilterLastChangeDate `json:"last_changed_status_date,omitempty"`
 }
 
 type GetFBSShipmentsListFilterLastChangeDate struct {
