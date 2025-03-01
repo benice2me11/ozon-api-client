@@ -188,7 +188,7 @@ type FBSPosting struct {
 	TrackingNumber string `json:"tracking_number"`
 
 	// Details on shipping rate
-	Tariffication []FBSPostingTariffication `json:"tariffication"`
+	Tariffication FBSPostingTariffication `json:"tariffication"`
 
 	// Economy product identifier
 	QuantumId int64 `json:"quantum_id"`
