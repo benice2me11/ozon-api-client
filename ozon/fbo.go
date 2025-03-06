@@ -338,6 +338,9 @@ type GetSupplyRequestInfoResponse struct {
 }
 
 type SupplyOrder struct {
+	// true if the supply request can be canceled
+	CanCancel bool `json:"can_cancel"`
+
 	// Date of supply request creation
 	CreationDate string `json:"creation_date"`
 
@@ -349,6 +352,18 @@ type SupplyOrder struct {
 
 	// Supply warehouse identifier
 	DropoffWarehouseId int64 `json:"dropoff_warehouse_id"`
+
+	// true if the supply request contains Super Economy products
+	IsEconom bool `json:"is_econom"`
+
+	// true if the seller has Super supplies enabled
+	IsSuperFBO bool `json:"is_super_fbo"`
+
+	// true if the supply request is virtual
+	IsVirtual bool `json:"is_virtual"`
+
+	// true if the supply request contains Super products
+	ProductSuperFBO bool `json:"product_super_fbo"`
 
 	// Filter by supply status
 	State string `json:"state"`
@@ -373,11 +388,31 @@ type Supply struct {
 	// Supply contents identifier. Used in the /v1/supply-order/bundle method
 	BundleId string `json:"bundle_id"`
 
+	// Filter by supply status
+	SupplyState string `json:"supply_state"`
+
 	// Storage warehouse identifier
 	StorageWarehouseId int64 `json:"storage_warehouse_id"`
 
+	// Product tags in the supply request
+	SupplyTags []SupplyTag `json:"supply_tags"`
+
 	// Supply identifier
 	Id int64 `json:"supply_id"`
+}
+
+type SupplyTag struct {
+	// true if the supply request contains products certified in the Mercury system
+	IsEVSDRequired bool `json:"is_evsd_required"`
+
+	// true if the supply request contains jewelry
+	IsJewelry bool `json:"is_jewelry"`
+
+	// true if the supply request contains products for which labeling is possible
+	IsMarkingPossible bool `json:"is_marking_possible"`
+
+	// true if the supply request contains products for which labeling is mandatory
+	IsMarkingRequired bool `json:"is_marking_required"`
 }
 
 type SupplyTimeslot struct {
@@ -713,16 +748,16 @@ func (c FBO) GetPass(ctx context.Context, params *GetPassParams) (*GetPassRespon
 }
 
 type GetSupplyContentParams struct {
-	// Identifiers of supply contents. Minimum is 1, maximum is 1000. You can get them using the /v2/supply-order/get method
+	// Identifiers of supply contents. You can get them using the /v2/supply-order/get method.
 	BundleIds []string `json:"bundle_ids"`
 
 	// true, to sort in ascending order
 	IsAsc bool `json:"is_asc"`
 
-	// Identifier of the last value on the page
+	// Identifier of the last SKU value on the page.
 	LastId string `json:"last_id"`
 
-	// Number of values on the page. Minimum is 1, maximum is 1000
+	// Number of products on the page.
 	Limit int32 `json:"limit"`
 
 	// Search query, for example: by name, article code, or SKU
@@ -891,7 +926,7 @@ type SupplyDraftWarehouse struct {
 	// Warehouse name
 	Name string `json:"name"`
 
-	// Bundle of products that don't come in a shipment
+	// Bundle of products that don't come in a shipment. Use the parameter in the /v1/supply-order/bundle method to get details.
 	RestrictedBundleId string `json:"restricted_bundle_id"`
 
 	// Warehouse availability
@@ -916,7 +951,7 @@ type SupplyDraftWarehouse struct {
 }
 
 type SupplyDraftWarehouseBundle struct {
-	// Bundle identifier
+	// Bundle identifier. Use the parameter in the /v1/supply-order/bundle method to get details
 	Id string `json:"bundle_id"`
 
 	// Indicates that the UTD is to be passed
@@ -1071,6 +1106,85 @@ func (c FBO) GetDraftTimeslots(ctx context.Context, params *GetDraftTimeslotsPar
 	url := "/v1/draft/timeslot/info"
 
 	resp := &GetDraftTimeslotsResponse{}
+
+	response, err := c.client.Request(ctx, http.MethodGet, url, params, resp, nil)
+	if err != nil {
+		return nil, err
+	}
+	response.CopyCommonResponse(&resp.CommonResponse)
+
+	return resp, nil
+}
+
+type CancelSuppyOrderParams struct {
+	// Supply request identifier
+	OrderId int64 `json:"order_id"`
+}
+
+type CancelSuppyOrderResponse struct {
+	core.CommonResponse
+
+	// Operation identifier for canceling the request
+	OperationId string `json:"operation_id"`
+}
+
+// Cancel supply request
+func (c FBO) CancelSuppyOrder(ctx context.Context, params *CancelSuppyOrderParams) (*CancelSuppyOrderResponse, error) {
+	url := "/v1/supply-order/cancel"
+
+	resp := &CancelSuppyOrderResponse{}
+
+	response, err := c.client.Request(ctx, http.MethodGet, url, params, resp, nil)
+	if err != nil {
+		return nil, err
+	}
+	response.CopyCommonResponse(&resp.CommonResponse)
+
+	return resp, nil
+}
+
+type StatusCancelledSupplyOrderParams struct {
+	// Operation identifier for canceling the supply request
+	OperationId string `json:"operation_id"`
+}
+
+type StatusCancelledSupplyOrderResponse struct {
+	core.CommonResponse
+
+	// Reason why the supply request can't be canceled
+	ErrorReasons []string `json:"error_reasons"`
+
+	// Details on supply request cancellation
+	Result StatusCancelledSupplyOrderResult `json:"result"`
+
+	// Cancellation status of the supply request
+	Status string `json:"status"`
+}
+
+type StatusCancelledSupplyOrderResult struct {
+	// true, if supply request is canceled
+	IsOrderCancelled bool `json:"is_order_cancelled"`
+
+	// List of canceled supplies
+	Supplies []StatusCancelledSupplyOrderSupply `json:"supplies"`
+}
+
+type StatusCancelledSupplyOrderSupply struct {
+	// Reason why supplies can't be canceled
+	ErrorReasons []string `json:"error_reasons"`
+
+	// true, if supply is canceled
+	IsSupplyCancelled bool `json:"is_supply_cancelled"`
+
+	// Supply identifier
+	SupplyId int64 `json:"supply_id"`
+}
+
+// Get status of canceled supply request
+func (c FBO) StatusCancelledSupplyOrder(ctx context.Context, params *StatusCancelledSupplyOrderParams) (*StatusCancelledSupplyOrderResponse, error) {
+	url := "/v1/supply-order/cancel/status"
+
+	resp := &StatusCancelledSupplyOrderResponse{}
 
 	response, err := c.client.Request(ctx, http.MethodGet, url, params, resp, nil)
 	if err != nil {

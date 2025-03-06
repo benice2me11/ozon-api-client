@@ -749,8 +749,17 @@ type UpdatePricesPrice struct {
 	// By default, the passed value is RUB, Russian ruble
 	CurrencyCode string `json:"currency_code"`
 
+	// true, if Ozon takes into account
+	// the minimum price when creating promotions.
+	// If you don't pass anything,
+	// the status of the price accounting remains the same
+	MinPriceForAutoActionsEnabled bool `json:"min_price_for_auto_actions_enabled"`
+
 	// Minimum product price with all promotions applied
 	MinPrice string `json:"min_price"`
+
+	// Product cost price
+	NetPrice string `json:"net_price"`
 
 	// Product identifier in the seller's system
 	OfferId string `json:"offer_id"`
@@ -1381,9 +1390,9 @@ type ProductInfoResultPicture struct {
 	// Image uploading status.
 	//
 	// If the `/v1/product/pictures/import` method was called, the response will always be imported—image not processed.
-	// To see the final status, call the `/v1/product/pictures/info` method after about 10 seconds.
+	// To see the final status, call the `/v2/product/pictures/info` method after about 10 seconds.
 	//
-	// If you called the `/v1/product/pictures/info` method, one of the statuses will appear:
+	// If you called the `/v2/product/pictures/info` method, one of the statuses will appear:
 	//   - uploaded — image uploaded;
 	//   - pending — image was not uploaded
 	State string `json:"state"`
@@ -1558,6 +1567,9 @@ type GetDescriptionOfProductResult struct {
 	// Barcode
 	Barcode string `json:"barcode"`
 
+	// All product's barcodes
+	Barcodes []string `json:"barcodes"`
+
 	// Category identifier
 	DescriptionCategoryId int64 `json:"description_category_id"`
 
@@ -1583,7 +1595,10 @@ type GetDescriptionOfProductResult struct {
 	Id int64 `json:"id"`
 
 	// Array of links to product images
-	Images []GetDescriptionOfProductResultImage `json:"images"`
+	Images []string `json:"images"`
+
+	// Model Information
+	ModelInfo GetDescriptionOfProductModelInfo `json:"model_info"`
 
 	// Array of 360 images
 	Images360 []GetDescriptionOfProductResultImage360 `json:"images360"`
@@ -1596,6 +1611,12 @@ type GetDescriptionOfProductResult struct {
 
 	// Array of PDF files
 	PDFList []GetDescriptionOfProductResultPDF `json:"pdf_list"`
+
+	// Link to the main product image
+	PrimaryImage string `json:"primary_image"`
+
+	// Product identifier in the Ozon system, SKU
+	SKU int64 `json:"sku"`
 
 	// Product type identifier
 	TypeId int64 `json:"type_id"`
@@ -1610,9 +1631,17 @@ type GetDescriptionOfProductResult struct {
 	Width int32 `json:"width"`
 }
 
+type GetDescriptionOfProductModelInfo struct {
+	// Model Identifier
+	ModelId int64 `json:"model_id"`
+
+	// Quantity of combined model products
+	Count int64 `json:"count"`
+}
+
 type GetDescriptionOfProductResultAttr struct {
 	// Characteristic identifier
-	AttributeId int64 `json:"attribute_id"`
+	AttributeId int64 `json:"id"`
 
 	// Identifier of the characteristic that supports nested properties.
 	// For example, the "Processor" characteristic has nested characteristics "Manufacturer" and "L2 Cache".
@@ -1657,12 +1686,6 @@ type GetDescriptionOfProductResultComplexAttrValue struct {
 	Value string `json:"value"`
 }
 
-type GetDescriptionOfProductResultImage struct {
-	Default  bool   `json:"default"`
-	FileName string `json:"file_name"`
-	Index    int64  `json:"index"`
-}
-
 type GetDescriptionOfProductResultImage360 struct {
 	FileName string `json:"file_name"`
 	Index    int64  `json:"index"`
@@ -1681,7 +1704,7 @@ type GetDescriptionOfProductResultPDF struct {
 
 // Returns a product characteristics description by product identifier. You can search for the product by `offer_id` or `product_id`
 func (c Products) GetDescriptionOfProduct(ctx context.Context, params *GetDescriptionOfProductParams) (*GetDescriptionOfProductResponse, error) {
-	url := "/v3/products/info/attributes"
+	url := "/v4/product/info/attributes"
 
 	resp := &GetDescriptionOfProductResponse{}
 
@@ -2107,10 +2130,6 @@ type GetProductPriceInfoFilter struct {
 type GetProductPriceInfoResponse struct {
 	core.CommonResponse
 
-	Result GetProductPriceInfoResult `json:"result"`
-}
-
-type GetProductPriceInfoResult struct {
 	// Products list
 	Items []GetProductPriceInfoResultItem `json:"items"`
 
@@ -2123,7 +2142,7 @@ type GetProductPriceInfoResult struct {
 
 type GetProductPriceInfoResultItem struct {
 	// Maximum acquiring fee
-	Acquiring int32 `json:"acquiring"`
+	Acquiring float64 `json:"acquiring"`
 
 	// Commissions information
 	Commissions GetProductPriceInfoResultItemCommission `json:"commissions"`
@@ -2737,6 +2756,66 @@ func (c Products) ListEconomy(ctx context.Context, params *ListEconomyProductsPa
 	url := "/v1/product/quant/list"
 
 	resp := &ListEconomyProductsResponse{}
+
+	response, err := c.client.Request(ctx, http.MethodPost, url, params, resp, nil)
+	if err != nil {
+		return nil, err
+	}
+	response.CopyCommonResponse(&resp.CommonResponse)
+
+	return resp, nil
+}
+
+type UpdatePriceRelevanceTimerParams struct {
+	// List of product identifiers
+	ProductIds []string `json:"product_ids"`
+}
+
+type UpdatePriceRelevanceTimerResponse struct {
+	core.CommonResponse
+}
+
+func (c Products) UpdatePriceRelevanceTimer(ctx context.Context, params *UpdatePriceRelevanceTimerParams) (*UpdatePriceRelevanceTimerResponse, error) {
+	url := "/v1/product/action/timer/update"
+
+	resp := &UpdatePriceRelevanceTimerResponse{}
+
+	response, err := c.client.Request(ctx, http.MethodPost, url, params, resp, nil)
+	if err != nil {
+		return nil, err
+	}
+	response.CopyCommonResponse(&resp.CommonResponse)
+
+	return resp, nil
+}
+
+type StatusPriceRelevanceTimerParams struct {
+	// List of product identifiers
+	ProductIds []string `json:"product_ids"`
+}
+
+type StatusPriceRelevanceTimerResponse struct {
+	core.CommonResponse
+
+	Statuses []PriceRelevanceTimerStatus `json:"statuses"`
+}
+
+type PriceRelevanceTimerStatus struct {
+	// Timer end time
+	ExpiredAt time.Time `json:"expired_at"`
+
+	// true, if Ozon takes into account the minimum price when creating promotions
+	MinPriceForAutoActionsEnabled bool `json:"min_price_for_auto_actions_enabled"`
+
+	// Product identifier
+	ProductId int64 `json:"product_id"`
+}
+
+// Get status of timer you've set
+func (c Products) StatusPriceRelevanceTimer(ctx context.Context, params *StatusPriceRelevanceTimerParams) (*StatusPriceRelevanceTimerResponse, error) {
+	url := "/v1/product/action/timer/update"
+
+	resp := &StatusPriceRelevanceTimerResponse{}
 
 	response, err := c.client.Request(ctx, http.MethodPost, url, params, resp, nil)
 	if err != nil {

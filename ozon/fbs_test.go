@@ -43,6 +43,7 @@ func TestListUnprocessedShipments(t *testing.T) {
 					  "posting_number": "23713478-0018-3",
 					  "order_id": 559293114,
 					  "order_number": "33713378-0051",
+					  "pickup_code_verified_at": "2025-01-17T11:03:00.124Z",
 					  "status": "awaiting_packaging",
 					  "delivery_method": {
 						"id": 15110442724000,
@@ -238,6 +239,7 @@ func TestGetFBSShipmentsList(t *testing.T) {
 					  "posting_number": "05708065-0029-1",
 					  "order_id": 680420041,
 					  "order_number": "05708065-0029",
+					  "pickup_code_verified_at": "2025-01-17T10:59:26.614Z",
 					  "status": "awaiting_deliver",
 					  "substatus": "posting_awaiting_passport_data",
 					  "delivery_method": {
@@ -301,7 +303,7 @@ func TestGetFBSShipmentsList(t *testing.T) {
 				  ],
 				  "has_next": true
 				}
-			}`,
+				}`,
 		},
 		// Test No Client-Id or Api-Key
 		{
@@ -421,8 +423,7 @@ func TestValidateLabelingCodes(t *testing.T) {
 					{
 						Exemplars: []ValidateLabelingCodesExemplar{
 							{
-								GTD:           "",
-								MandatoryMark: "010290000151642731tVMohkbfFgunB",
+								GTD: "",
 							},
 						},
 						ProductId: 476925391,
@@ -430,23 +431,33 @@ func TestValidateLabelingCodes(t *testing.T) {
 				},
 			},
 			`{
-				"result": {
-				  "products": [
-					{
-					  "product_id": 476925391,
-					  "exemplars": [
-						{
-						  "mandatory_mark": "010290000151642731tVMohkbfFgunB",
-						  "gtd": "",
-						  "valid": true,
-						  "errors": []
-						}
-					  ],
-					  "valid": true,
-					  "error": ""
-					}
-				  ]
-				}
+				"products": [
+				  {
+					"error": "string",
+					"exemplars": [
+					  {
+						"errors": [
+						  "string"
+						],
+						"gtd": "string",
+						"marks": [
+						  {
+							"errors": [
+							  "string"
+							],
+							"mark": "string",
+							"mark_type": "string",
+							"valid": true
+						  }
+						],
+						"rnpt": "string",
+						"valid": true
+					  }
+					],
+					"product_id": 476925391,
+					"valid": true
+				  }
+				]
 			}`,
 		},
 		// Test No Client-Id or Api-Key
@@ -478,11 +489,11 @@ func TestValidateLabelingCodes(t *testing.T) {
 		}
 
 		if resp.StatusCode == http.StatusOK {
-			if len(resp.Result.Products) != len(test.params.Products) {
+			if len(resp.Products) != len(test.params.Products) {
 				t.Errorf("Length of products in request and response are not equal")
 			}
-			if len(resp.Result.Products) > 0 {
-				if resp.Result.Products[0].ProductId != test.params.Products[0].ProductId {
+			if len(resp.Products) > 0 {
+				if resp.Products[0].ProductId != test.params.Products[0].ProductId {
 					t.Errorf("Product ids in request and response are not equal")
 				}
 			}
@@ -591,8 +602,10 @@ func TestGetShipmentDataByIdentifier(t *testing.T) {
 				  "posting_number": "57195475-0050-3",
 				  "order_id": 438764970,
 				  "order_number": "57195475-0050",
+				  "pickup_code_verified_at": "2025-01-17T11:04:59.958Z",
 				  "status": "awaiting_packaging",
 				  "substatus": "posting_awaiting_passport_data",
+				  "previous_substatus": "posting_transferring_to_delivery",
 				  "delivery_method": {
 					"id": 18114520187000,
 					"name": "Ozon Логистика самостоятельно, Москва",
@@ -873,62 +886,6 @@ func TestListOfShipmentCertificates(t *testing.T) {
 				if resp.Result[0].DeliveryMethodId == 0 {
 					t.Errorf("Delivery method id cannot be 0")
 				}
-			}
-		}
-	}
-}
-
-func TestSignShipmentCertificate(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		statusCode int
-		headers    map[string]string
-		params     *SignShipmentCertificateParams
-		response   string
-	}{
-		// Test Ok
-		{
-			http.StatusOK,
-			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
-			&SignShipmentCertificateParams{
-				Id:      900000250859000,
-				DocType: "act_of_mismatch",
-			},
-			`{
-				"result": "string"
-			}`,
-		},
-		// Test No Client-Id or Api-Key
-		{
-			http.StatusUnauthorized,
-			map[string]string{},
-			&SignShipmentCertificateParams{},
-			`{
-				"code": 16,
-				"message": "Client-Id and Api-Key headers are required"
-			}`,
-		},
-	}
-
-	for _, test := range tests {
-		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
-
-		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
-		resp, err := c.FBS().SignShipmentCertificate(ctx, test.params)
-		if err != nil {
-			t.Error(err)
-			continue
-		}
-
-		compareJsonResponse(t, test.response, &SignShipmentCertificateResponse{})
-
-		if resp.StatusCode != test.statusCode {
-			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
-		}
-		if resp.StatusCode == http.StatusOK {
-			if resp.Result == "" {
-				t.Errorf("Result cannot be empty")
 			}
 		}
 	}
@@ -1432,52 +1389,52 @@ func TestGetDropOffPointRestrictions(t *testing.T) {
 	}
 }
 
-func TestCheckProductItemsData(t *testing.T) {
+func TestSetProductItemsData(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		statusCode int
 		headers    map[string]string
-		params     *CheckProductItemsDataParams
+		params     *SetProductItemsDataParams
 		response   string
 	}{
 		// Test Ok
 		{
 			http.StatusOK,
 			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
-			&CheckProductItemsDataParams{
+			&SetProductItemsDataParams{
 				MultiBoxQuantity: 0,
 				PostingNumber:    "1234",
-				Products: []CheckProductItemsDataProduct{
+				Products: []SetProductItemsDataProduct{
 					{
-						Exemplars: []CheckProductItemsDataProductExemplar{
+						Exemplars: []SetProductItemsDataProductExemplar{
 							{
-								ExemplarId:    1,
-								GTD:           "string",
-								IsGTDAbsent:   true,
-								IsRNPTAbsent:  true,
-								MandatoryMark: "string",
-								RNPT:          "string",
-								JWUIN:         "string",
+								ExemplarId:  1,
+								GTD:         "string",
+								IsGTDAbsent: true,
+								RNPT:        "string",
 							},
 						},
-						IsGTDNeeded:           true,
-						IsMandatoryMarkNeeded: true,
-						IsRNPTNeeded:          true,
-						ProductId:             22,
-						Quantity:              11,
+						ProductId: 22,
 					},
 				},
 			},
 			`{
-				"result": true
+				"code": 0,
+				"details": [
+				  {
+					"typeUrl": "string",
+					"value": "string"
+				  }
+				],
+				"message": "string"
 			}`,
 		},
 		// Test No Client-Id or Api-Key
 		{
 			http.StatusUnauthorized,
 			map[string]string{},
-			&CheckProductItemsDataParams{},
+			&SetProductItemsDataParams{},
 			`{
 				"code": 16,
 				"message": "Client-Id and Api-Key headers are required"
@@ -1489,13 +1446,13 @@ func TestCheckProductItemsData(t *testing.T) {
 		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
 
 		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
-		resp, err := c.FBS().CheckProductItemsData(ctx, test.params)
+		resp, err := c.FBS().SetProductItemsData(ctx, test.params)
 		if err != nil {
 			t.Error(err)
 			continue
 		}
 
-		compareJsonResponse(t, test.response, &CheckProductItemsDataResponse{})
+		compareJsonResponse(t, test.response, &SetProductItemsDataResponse{})
 
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
@@ -1523,21 +1480,37 @@ func TestGetProductItemsCheckStatuses(t *testing.T) {
 				"posting_number": "23281294-0063-2",
 				"products": [
 				  {
-					"product_id": 476925391,
 					"exemplars": [
 					  {
-						"mandatory_mark": "010290000151642731tVMohkbfFgunB",
-						"gtd": "",
+						"exemplar_id": 0,
+						"gtd": "string",
+						"gtd_check_status": "string",
+						"gtd_error_codes": [
+						  "string"
+						],
 						"is_gtd_absent": true,
-						"mandatory_mark_check_status": "passed",
-						"mandatory_mark_error_codes": [],
-						"gtd_check_status": "passed",
-						"gtd_error_codes": []
+						"is_rnpt_absent": true,
+						"marks": [
+						  {
+							"check_status": "string",
+							"error_codes": [
+							  "string"
+							],
+							"mark": "string",
+							"mark_type": "string"
+						  }
+						],
+						"rnpt": "string",
+						"rnpt_check_status": "string",
+						"rnpt_error_codes": [
+						  "string"
+						]
 					  }
-					]
+					],
+					"product_id": 123
 				  }
 				],
-				"status": "ship_available"
+				"status": "string"
 			}`,
 		},
 		// Test No Client-Id or Api-Key
@@ -1578,8 +1551,8 @@ func TestGetProductItemsCheckStatuses(t *testing.T) {
 				if resp.Products[0].ProductId == 0 {
 					t.Errorf("Product id cannot be 0")
 				}
-				if len(resp.Products[0].Exemplars) > 0 {
-					if resp.Products[0].Exemplars[0].MandatoryMark == "" {
+				if len(resp.Products[0].Exemplars) > 0 && len(resp.Products[0].Exemplars[0].Marks) > 0 {
+					if resp.Products[0].Exemplars[0].Marks[0].Mark == "" {
 						t.Errorf("Mandatory mark cannot be empty")
 					}
 				}
@@ -2929,13 +2902,19 @@ func TestCreateOrGetProductExemplar(t *testing.T) {
 						"gtd": "string",
 						"is_gtd_absent": true,
 						"is_rnpt_absent": true,
-						"mandatory_mark": "string",
-						"rnpt": "string",
-						"jw_uin": "string"
+						"marks": [
+						  {
+							"mark": "string",
+							"mark_type": "string"
+						  }
+						],
+						"rnpt": "string"
 					  }
 					],
 					"is_gtd_needed": true,
+					"is_jw_uin_needed": true,
 					"is_mandatory_mark_needed": true,
+					"is_mandatory_mark_possible": true,
 					"is_rnpt_needed": true,
 					"product_id": 0,
 					"quantity": 0
@@ -3421,6 +3400,114 @@ func TestDeleteShipment(t *testing.T) {
 		}
 
 		compareJsonResponse(t, test.response, &DeleteShipmentResponse{})
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+	}
+}
+
+func TestVerifyCourierCode(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *VerifyCourierCodeParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&VerifyCourierCodeParams{
+				PickupCode:    "string",
+				PostingNumber: "string",
+			},
+			`{
+				"valid": true
+			}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&VerifyCourierCodeParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.FBS().VerifyCourierCode(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		compareJsonResponse(t, test.response, &VerifyCourierCodeResponse{})
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+	}
+}
+
+func TestUpdateProductsData(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *UpdateProductsDataParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&UpdateProductsDataParams{
+				PostingNumber: "string",
+			},
+			`{
+				"code": 0,
+				"details": [
+				  {
+					"typeUrl": "string",
+					"value": "string"
+				  }
+				],
+				"message": "string"
+			}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&UpdateProductsDataParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.FBS().UpdateProductsData(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		compareJsonResponse(t, test.response, &UpdateProductsDataResponse{})
 
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)

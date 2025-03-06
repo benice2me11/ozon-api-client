@@ -1370,37 +1370,33 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 				  {
 					"id": 213761435,
 					"barcode": "",
-					"description_category_id": 17038062,
+					"barcodes": [
+					  "123124123",
+					  "123342455"
+					],
 					"name": "Пленка защитная для Xiaomi Redmi Note 10 Pro 5G",
 					"offer_id": "21470",
+					"type_id": 124572394,
 					"height": 10,
 					"depth": 210,
 					"width": 140,
 					"dimension_unit": "mm",
 					"weight": 50,
 					"weight_unit": "g",
+					"primary_image": "https://cdn1.ozone.ru/s3/multimedia-4/6804736960.jpg",
+					"sku": 423434534,
+					"model_info": {
+					  "model_id": 43445453,
+					  "count": 4
+					},
 					"images": [
-					  {
-						"file_name": "https://cdn1.ozone.ru/s3/multimedia-f/6190456071.jpg",
-						"default": true,
-						"index": 0
-					  },
-					  {
-						"file_name": "https://cdn1.ozone.ru/s3/multimedia-7/6190456099.jpg",
-						"default": false,
-						"index": 1
-					  },
-					  {
-						"file_name": "https://cdn1.ozone.ru/s3/multimedia-9/6190456065.jpg",
-						"default": false,
-						"index": 2
-					  }
+					  "https://cdn1.ozone.ru/s3/multimedia-4/6804736960.jpg",
+					  "https://cdn1.ozone.ru/s3/multimedia-j/6835412647.jpg"
 					],
-					"images360": [],
 					"pdf_list": [],
 					"attributes": [
 					  {
-						"attribute_id": 5219,
+						"id": 5219,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1410,7 +1406,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 11051,
+						"id": 11051,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1420,7 +1416,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 10100,
+						"id": 10100,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1430,7 +1426,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 11794,
+						"id": 11794,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1440,7 +1436,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 9048,
+						"id": 9048,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1450,7 +1446,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 5076,
+						"id": 5076,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1460,7 +1456,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 9024,
+						"id": 9024,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1470,7 +1466,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 10015,
+						"id": 10015,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1480,7 +1476,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 85,
+						"id": 85,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1490,7 +1486,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 9461,
+						"id": 9461,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1500,7 +1496,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 4180,
+						"id": 4180,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1510,7 +1506,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 4191,
+						"id": 4191,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1520,7 +1516,7 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 						]
 					  },
 					  {
-						"attribute_id": 8229,
+						"id": 8229,
 						"complex_id": 0,
 						"values": [
 						  {
@@ -1531,7 +1527,8 @@ func TestGetDescriptionOfProduct(t *testing.T) {
 					  }
 					],
 					"complex_attributes": [],
-					"color_image": ""
+					"color_image": "",
+					"description_category_id": 71107562
 				  }
 				],
 				"total": 1,
@@ -2158,74 +2155,72 @@ func TestGetProductPriceInfo(t *testing.T) {
 				},
 			},
 			`{
-				"result": {
-				  "cursor": "string",
-				  "items": [
-					{
-					  "acquiring": 0,
-					  "commissions": {
-						"fbo_deliv_to_customer_amount": 14.75,
-						"fbo_direct_flow_trans_max_amount": 46.5,
-						"fbo_direct_flow_trans_min_amount": 31,
-						"fbo_return_flow_amount": 50,
-						"fbs_deliv_to_customer_amount": 60,
-						"fbs_direct_flow_trans_max_amount": 61.5,
-						"fbs_direct_flow_trans_min_amount": 41,
-						"fbs_first_mile_max_amount": 25,
-						"fbs_first_mile_min_amount": 0,
-						"fbs_return_flow_amount": 40,
-						"sales_percent_fbo": 15,
-						"sales_percent_fbs": 0
-					  },
-					  "marketing_actions": {
-						"actions": [
-						  {
-							"date_from": "2024-12-13T06:49:37.591Z",
-							"date_to": "2024-12-13T06:49:37.591Z",
-							"title": "string",
-							"value": 0
-						  }
-						],
-						"current_period_from": "2024-12-13T06:49:37.591Z",
-						"current_period_to": "2024-12-13T06:49:37.591Z",
-						"ozon_actions_exist": true
-					  },
-					  "offer_id": "356792",
-					  "price": {
-						"auto_action_enabled": true,
-						"currency_code": "RUB",
-						"marketing_price": 0,
-						"marketing_seller_price": 0,
-						"min_price": 0,
-						"old_price": 579,
-						"price": 499,
-						"retail_price": 0,
-						"vat": 0.2
-					  },
-					  "price_indexes": {
-						"color_index": "WITHOUT_INDEX",
-						"external_index_data": {
-						  "min_price": 0,
-						  "min_price_currency": "string",
-						  "price_index_value": 0
-						},
-						"ozon_index_data": {
-						  "min_price": 0,
-						  "min_price_currency": "string",
-						  "price_index_value": 0
-						},
-						"self_marketplaces_index_data": {
-						  "min_price": 0,
-						  "min_price_currency": "string",
-						  "price_index_value": 0
+				"cursor": "string",
+				"items": [
+				{
+					"acquiring": 0.5,
+					"commissions": {
+					"fbo_deliv_to_customer_amount": 14.75,
+					"fbo_direct_flow_trans_max_amount": 46.5,
+					"fbo_direct_flow_trans_min_amount": 31,
+					"fbo_return_flow_amount": 50,
+					"fbs_deliv_to_customer_amount": 60,
+					"fbs_direct_flow_trans_max_amount": 61.5,
+					"fbs_direct_flow_trans_min_amount": 41,
+					"fbs_first_mile_max_amount": 25,
+					"fbs_first_mile_min_amount": 0,
+					"fbs_return_flow_amount": 40,
+					"sales_percent_fbo": 15,
+					"sales_percent_fbs": 0
+					},
+					"marketing_actions": {
+					"actions": [
+						{
+						"date_from": "2024-12-13T06:49:37.591Z",
+						"date_to": "2024-12-13T06:49:37.591Z",
+						"title": "string",
+						"value": 0
 						}
-					  },
-					  "product_id": 243686911,
-					  "volume_weight": 0
+					],
+					"current_period_from": "2024-12-13T06:49:37.591Z",
+					"current_period_to": "2024-12-13T06:49:37.591Z",
+					"ozon_actions_exist": true
+					},
+					"offer_id": "356792",
+					"price": {
+					"auto_action_enabled": true,
+					"currency_code": "RUB",
+					"marketing_price": 0,
+					"marketing_seller_price": 0,
+					"min_price": 0,
+					"old_price": 579,
+					"price": 499,
+					"retail_price": 0,
+					"vat": 0.2
+					},
+					"price_indexes": {
+					"color_index": "WITHOUT_INDEX",
+					"external_index_data": {
+						"min_price": 0,
+						"min_price_currency": "string",
+						"price_index_value": 0
+					},
+					"ozon_index_data": {
+						"min_price": 0,
+						"min_price_currency": "string",
+						"price_index_value": 0
+					},
+					"self_marketplaces_index_data": {
+						"min_price": 0,
+						"min_price_currency": "string",
+						"price_index_value": 0
 					}
-				  ],
-				  "total": 0
+					},
+					"product_id": 243686911,
+					"volume_weight": 0
 				}
+				],
+				"total": 0
 			}`,
 		},
 		// Test No Client-Id or Api-Key
@@ -2738,5 +2733,109 @@ func TestListEconomy(t *testing.T) {
 		}
 
 		compareJsonResponse(t, test.response, &ListEconomyProductsResponse{})
+	}
+}
+
+func TestUpdatePriceRelevanceTimer(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *UpdatePriceRelevanceTimerParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&UpdatePriceRelevanceTimerParams{
+				ProductIds: []string{"string"},
+			},
+			`{}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&UpdatePriceRelevanceTimerParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.Products().UpdatePriceRelevanceTimer(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+
+		compareJsonResponse(t, test.response, &UpdatePriceRelevanceTimerResponse{})
+	}
+}
+
+func TestStatusPriceRelevanceTimer(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *StatusPriceRelevanceTimerParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&StatusPriceRelevanceTimerParams{
+				ProductIds: []string{"string"},
+			},
+			`{
+				"statuses": [
+				  {
+					"expired_at": "2019-08-24T14:15:22Z",
+					"min_price_for_auto_actions_enabled": true,
+					"product_id": 0
+				  }
+				]
+			}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&StatusPriceRelevanceTimerParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.Products().StatusPriceRelevanceTimer(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+
+		compareJsonResponse(t, test.response, &StatusPriceRelevanceTimerResponse{})
 	}
 }

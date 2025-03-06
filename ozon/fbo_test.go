@@ -361,16 +361,30 @@ func TestGetSupplyRequestInfo(t *testing.T) {
 			`{
 				"orders": [
 				  {
+					"can_cancel": true,
 					"creation_date": "string",
 					"creation_flow": "string",
 					"data_filling_deadline_utc": "2019-08-24T14:15:22Z",
 					"dropoff_warehouse_id": 0,
+					"is_econom": true,
+					"is_super_fbo": true,
+					"is_virtual": true,
+					"product_super_fbo": true,
 					"state": "ORDER_STATE_UNSPECIFIED",
 					"supplies": [
 					  {
 						"bundle_id": "string",
 						"storage_warehouse_id": 0,
-						"supply_id": 0
+						"supply_id": 0,
+						"supply_state": "SUPPLY_STATE_UNSPECIFIED",
+						"supply_tags": [
+						  {
+							"is_evsd_required": true,
+							"is_jewelry": true,
+							"is_marking_possible": true,
+							"is_marking_required": true
+						  }
+						]
 					  }
 					],
 					"supply_order_id": 0,
@@ -1202,6 +1216,121 @@ func TestGetDraftTimeslots(t *testing.T) {
 		}
 
 		compareJsonResponse(t, test.response, &GetDraftTimeslotsResponse{})
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+	}
+}
+
+func TestCancelSuppyOrder(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *CancelSuppyOrderParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&CancelSuppyOrderParams{
+				OrderId: 11,
+			},
+			`{
+				"operation_id": "string"
+			}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&CancelSuppyOrderParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.FBO().CancelSuppyOrder(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		compareJsonResponse(t, test.response, &CancelSuppyOrderResponse{})
+
+		if resp.StatusCode != test.statusCode {
+			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+	}
+}
+
+func TestStatusCancelledSupplyOrder(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		statusCode int
+		headers    map[string]string
+		params     *StatusCancelledSupplyOrderParams
+		response   string
+	}{
+		// Test Ok
+		{
+			http.StatusOK,
+			map[string]string{"Client-Id": "my-client-id", "Api-Key": "my-api-key"},
+			&StatusCancelledSupplyOrderParams{
+				OperationId: "123",
+			},
+			`{
+				"error_reasons": [
+				  "INVALID_ORDER_STATE"
+				],
+				"result": {
+				  "is_order_cancelled": true,
+				  "supplies": [
+					{
+					  "error_reasons": [
+						"INVALID_SUPPLY_STATE"
+					  ],
+					  "is_supply_cancelled": true,
+					  "supply_id": 0
+					}
+				  ]
+				},
+				"status": "SUCCESS"
+			}`,
+		},
+		// Test No Client-Id or Api-Key
+		{
+			http.StatusUnauthorized,
+			map[string]string{},
+			&StatusCancelledSupplyOrderParams{},
+			`{
+				"code": 16,
+				"message": "Client-Id and Api-Key headers are required"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		c := NewMockClient(core.NewMockHttpHandler(test.statusCode, test.response, test.headers))
+
+		ctx, _ := context.WithTimeout(context.Background(), testTimeout)
+		resp, err := c.FBO().StatusCancelledSupplyOrder(ctx, test.params)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		compareJsonResponse(t, test.response, &StatusCancelledSupplyOrderResponse{})
 
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
