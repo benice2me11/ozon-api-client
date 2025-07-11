@@ -2,6 +2,7 @@ package ozon
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -191,7 +192,7 @@ type FBSPosting struct {
 	TrackingNumber string `json:"tracking_number"`
 
 	// Details on shipping rate
-	Tariffication FBSPostingTariffication `json:"tariffication"`
+	Tariffication FBSPostingTarifficationList `json:"tariffication"`
 
 	// Economy product identifier
 	QuantumId int64 `json:"quantum_id"`
@@ -235,6 +236,23 @@ type FBSPostingTariffication struct {
 
 	// New shipping rate currency
 	NextTariffCurrencyCode string `json:"next_tariff_charge_currency_code"`
+}
+
+type FBSPostingTarifficationList []FBSPostingTariffication
+
+func (l *FBSPostingTarifficationList) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == "null" {
+		return nil
+	}
+	if data[0] == '[' {
+		return json.Unmarshal(data, (*[]FBSPostingTariffication)(l))
+	}
+	var t FBSPostingTariffication
+	if err := json.Unmarshal(data, &t); err != nil {
+		return err
+	}
+	*l = []FBSPostingTariffication{t}
+	return nil
 }
 
 type FBSPostingAddressee struct {
@@ -364,20 +382,20 @@ type FBSRequirements struct {
 	// To pack the shipment, pass the CCD number for all listed SKUs.
 	// If you do not have a CCD number, pass the value `is_gtd_absent` = true
 	// via the `/v3/posting/fbs/ship/package`
-	ProductsRequiringGTD []string `json:"products_requiring_gtd"`
+	ProductsRequiringGTD []int64 `json:"products_requiring_gtd"`
 
 	// Array of Ozon Product IDs (SKU) for which
 	// you need to pass the manufacturing country.
 	//
 	// To pack the shipment, pass the manufacturing
 	// country value for all listed SKUs via the `/v2/posting/fbs/product/country/set` method
-	ProductsRequiringCountry []string `json:"products_requiring_country"`
+	ProductsRequiringCountry []int64 `json:"products_requiring_country"`
 
 	// Array of Ozon Product IDs (SKU) for which you need to pass the "Chestny ZNAK" labeling
-	ProductsRequiringMandatoryMark []string `json:"products_requiring_mandatory_mark"`
+	ProductsRequiringMandatoryMark []int64 `json:"products_requiring_mandatory_mark"`
 
 	// Array of Ozon Product IDs (SKU) for which you need to pass a product batch registration number
-	ProductsRequiringRNPT []string `json:"products_requiring_rnpt"`
+	ProductsRequiringRNPT []int64 `json:"products_requiring_rnpt"`
 }
 
 type PostingProduct struct {
@@ -1102,7 +1120,7 @@ type GetShipmentDataByIdentifierResult struct {
 	TrackingNumber string `json:"tracking_number"`
 
 	// Details on shipping rate
-	Tariffication []FBSPostingTariffication `json:"tariffication"`
+	Tariffication FBSPostingTarifficationList `json:"tariffication"`
 }
 
 type GetShipmentDataByIdentifierOptional struct {

@@ -2,6 +2,7 @@ package ozon
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -342,6 +343,23 @@ func TestGetFBSShipmentsList(t *testing.T) {
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
 		}
+	}
+}
+
+func TestTarifficationUnmarshalObject(t *testing.T) {
+	t.Parallel()
+
+	data := `{"tariffication": {"current_tariff_rate": 4}}`
+	var v struct {
+		Tariffication FBSPostingTarifficationList `json:"tariffication"`
+	}
+
+	if err := json.Unmarshal([]byte(data), &v); err != nil {
+		t.Fatalf("unmarshal error: %v", err)
+	}
+
+	if len(v.Tariffication) != 1 || v.Tariffication[0].CurrentTariffRate != 4 {
+		t.Fatalf("unexpected result: %+v", v.Tariffication)
 	}
 }
 

@@ -742,9 +742,6 @@ type UpdatePricesParams struct {
 
 // Product price details
 type UpdatePricesPrice struct {
-	// Min price that ozon can count for auto promos
-	MinPriceForAutoActionsEnabled bool `json:"min_price_for_auto_actions_enabled"`
-
 	// Attribute for enabling and disabling promos auto-application
 	AutoActionEnabled string `json:"auto_action_enabled"`
 
