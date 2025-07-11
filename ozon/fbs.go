@@ -2,6 +2,7 @@ package ozon
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -191,7 +192,7 @@ type FBSPosting struct {
 	TrackingNumber string `json:"tracking_number"`
 
 	// Details on shipping rate
-	Tariffication []FBSPostingTariffication `json:"tariffication"`
+	Tariffication FBSPostingTarifficationList `json:"tariffication"`
 
 	// Economy product identifier
 	QuantumId int64 `json:"quantum_id"`
@@ -235,6 +236,23 @@ type FBSPostingTariffication struct {
 
 	// New shipping rate currency
 	NextTariffCurrencyCode string `json:"next_tariff_charge_currency_code"`
+}
+
+type FBSPostingTarifficationList []FBSPostingTariffication
+
+func (l *FBSPostingTarifficationList) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == "null" {
+		return nil
+	}
+	if data[0] == '[' {
+		return json.Unmarshal(data, (*[]FBSPostingTariffication)(l))
+	}
+	var t FBSPostingTariffication
+	if err := json.Unmarshal(data, &t); err != nil {
+		return err
+	}
+	*l = []FBSPostingTariffication{t}
+	return nil
 }
 
 type FBSPostingAddressee struct {
@@ -1102,7 +1120,7 @@ type GetShipmentDataByIdentifierResult struct {
 	TrackingNumber string `json:"tracking_number"`
 
 	// Details on shipping rate
-	Tariffication []FBSPostingTariffication `json:"tariffication"`
+	Tariffication FBSPostingTarifficationList `json:"tariffication"`
 }
 
 type GetShipmentDataByIdentifierOptional struct {
