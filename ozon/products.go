@@ -906,10 +906,10 @@ type CreateOrUpdateProductItem struct {
 	// Link to main product image
 	PrimaryImage string `json:"primary_image"`
 
-	// Array of 360 images—up to 70 files.
-	//
-	// Pass links to images in the public cloud storage. The image format is JPG
-	Images360 []string `json:"images_360"`
+    // Array of 360 images—up to 70 files.
+    //
+    // Pass links to images in the public cloud storage. The image format is JPG
+    Images360 []string `json:"images360"`
 
 	// Product name. Up to 500 characters
 	Name string `json:"name"`
