@@ -201,6 +201,15 @@ func TestListUnprocessedShipments(t *testing.T) {
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
 		}
+
+		if resp.StatusCode == http.StatusOK && len(resp.Result.Postings) > 0 {
+			tariffication := resp.Result.Postings[0].Tariffication
+			if len(tariffication) == 0 {
+				t.Errorf("expected tariffication details in the first posting")
+			} else if tariffication[0].NextTariffStartsAt.IsZero() {
+				t.Errorf("expected non-zero next tariff start time, got zero value")
+			}
+		}
 	}
 }
 
@@ -342,6 +351,15 @@ func TestGetFBSShipmentsList(t *testing.T) {
 
 		if resp.StatusCode != test.statusCode {
 			t.Errorf("got wrong status code: got: %d, expected: %d", resp.StatusCode, test.statusCode)
+		}
+
+		if resp.StatusCode == http.StatusOK && len(resp.Result.Postings) > 0 {
+			tariffication := resp.Result.Postings[0].Tariffication
+			if len(tariffication) == 0 {
+				t.Errorf("expected tariffication details in the first posting")
+			} else if tariffication[0].NextTariffStartsAt.IsZero() {
+				t.Errorf("expected non-zero next tariff start time, got zero value")
+			}
 		}
 	}
 }
@@ -746,6 +764,11 @@ func TestGetShipmentDataByIdentifier(t *testing.T) {
 			}
 			if resp.Result.TPLIntegrationType == "" {
 				t.Errorf("TPL integration type cannot be empty")
+			}
+			if len(resp.Result.Tariffication) == 0 {
+				t.Errorf("expected tariffication details in the shipment data response")
+			} else if resp.Result.Tariffication[0].NextTariffStartsAt.IsZero() {
+				t.Errorf("expected non-zero next tariff start time, got zero value")
 			}
 		}
 	}

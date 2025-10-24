@@ -745,9 +745,15 @@ type UpdatePricesPrice struct {
 	// Attribute for enabling and disabling promos auto-application
 	AutoActionEnabled string `json:"auto_action_enabled"`
 
+	// Attribute for enabling and disabling automatic adding of the product to Ozon promos list
+	AutoAddToOzonActionsListEnabled string `json:"auto_add_to_ozon_actions_list_enabled"`
+
 	// Currency of your prices. The passed value must be the same as the one set in the personal account settings.
 	// By default, the passed value is RUB, Russian ruble
 	CurrencyCode string `json:"currency_code"`
+
+	// Manage participation in the Elastic Boosting promo through price changes
+	ManageElasticBoostingThroughPrice bool `json:"manage_elastic_boosting_through_price"`
 
 	// true, if Ozon takes into account
 	// the minimum price when creating promotions.
@@ -906,10 +912,10 @@ type CreateOrUpdateProductItem struct {
 	// Link to main product image
 	PrimaryImage string `json:"primary_image"`
 
-    // Array of 360 images—up to 70 files.
-    //
-    // Pass links to images in the public cloud storage. The image format is JPG
-    Images360 []string `json:"images360"`
+	// Array of 360 images—up to 70 files.
+	//
+	// Pass links to images in the public cloud storage. The image format is JPG
+	Images360 []string `json:"images360"`
 
 	// Product name. Up to 500 characters
 	Name string `json:"name"`
