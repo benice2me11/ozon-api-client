@@ -1353,7 +1353,7 @@ func (c Products) CreateProductByOzonID(ctx context.Context, params *CreateProdu
 
 type UpdateProductImagesParams struct {
 	// Marketing color
-	ColorImage string `json:"color_image"`
+	ColorImage string `json:"color_image,omitempty"`
 
 	// Array of links to images. The images in the array are arranged in the order of their arrangement on the site.
 	// The first image in the list is the main one for the product.
@@ -1362,7 +1362,7 @@ type UpdateProductImagesParams struct {
 	Images []string `json:"images"`
 
 	// Array of 360 images—up to 70 files
-	Images360 []string `json:"images360"`
+	Images360 []string `json:"images360,omitempty"`
 
 	// Product identfier
 	ProductId int64 `json:"product_id"`
